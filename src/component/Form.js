@@ -50,6 +50,10 @@ function Form(props) {
   const validateForm = (data) => {
     let newError = {};//store the errors here
 
+    if (dataStore.some((item) => item.id === data.id)) {
+      newError.id = "enter unique id";
+    }
+
     if (!data.id || !idFormate(data.id)) {
       newError.id = "enter id as number";
     }
