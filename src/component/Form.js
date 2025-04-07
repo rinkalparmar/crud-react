@@ -47,6 +47,7 @@ function Form(props) {
     return /^[a-zA-Z0-9]+$/.test(password);
   };
 
+
   const validateForm = (data) => {
     let newError = {};//store the errors here
 
@@ -76,7 +77,7 @@ function Form(props) {
 
     setErrors(newError);
 
-    return !Object.keys(newError).length;
+    return !Object.keys(newError).length;//if eany error then give false value otherwirse true
   };
 
   // console.log(errors);
@@ -85,23 +86,19 @@ function Form(props) {
     event.preventDefault();
 
 
-
     let isValid = validateForm(store);
     console.log('isValid???', isValid);
     if (isValid) {
-      ShowAlert("danger", "Please correct the errors before submitting");
+      console.log("no errors");
     }
     else {
       console.log("your enter data is not correct");
+      // this run if error then can not inser,update data
       return;
     }
 
 
-    debugger;
-
-
     if (errors) {
-      event.preventDefault();
       if (edit) {
         setDataStore((prestore) => prestore.map((item) => item.id === edit ? { ...item, ...store } : item));
 
@@ -160,7 +157,7 @@ function Form(props) {
 
 
   return (
-    <>
+    <>q
       <div className="container my-4">
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
