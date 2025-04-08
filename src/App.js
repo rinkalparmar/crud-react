@@ -5,6 +5,7 @@ import './App.css';
 import Form from './component/Form';
 import Navbar from './component/Navbar';
 import Alert from './component/Alert';
+// import Formyup from './component/Form-yup';
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
       <Navbar />
       <Alert alert={alert} />
       <Form ShowAlert={ShowAlert} />
+      {/* <Formyup ShowAlert={ShowAlert}/> */}
 
       {/* class component */}
       {/* <Navbar/>

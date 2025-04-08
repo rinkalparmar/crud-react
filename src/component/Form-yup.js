@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-// import DisplayData from './DisplayData';
+import * as yup from 'yup';
+import { useFormik } from 'formik';
 
-function Form(props) {
+function Formyup(props) {
   const { ShowAlert } = props;
-
 
   // store a single data record
   const [store, setStore] = useState({ id: "", name: "", email: "", mobile: "", password: "" });
@@ -16,7 +16,6 @@ function Form(props) {
   const [errors, setErrors] = useState({});
 
 
-
   //  get data from localstoreage
   useEffect(() => {
     const isData = JSON.parse(localStorage.getItem("data"));
@@ -26,89 +25,32 @@ function Form(props) {
   }, []);
 
 
+  // schema of all fields
+  const validationSchema = yup.object({
+    id: yup.number().required("enter id as number"),
+    name: yup.string("name only latter").required("name is required"),
+    email: yup.string().email("enter correct email address").required("email is required"),
+    mobile: yup.string()
+      .max(10, "Mobile number must be  10 digits")
+      .required("Mobile number is required"),
+    password: yup.string().required("password is required"),
+  });
 
 
-  // Validation
-  const idFormate = (id) => {
-    return /^[0-9]+$/.test(id);
-  };
+  // console.log(errors); 
 
-  const nameFomate = (name) => {
-    return /^[a-zA-Z]+$/.test(name);
-  };
-
-  const emailFormate = (email) => {
-    return /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email);
-  };
-  const mobileFormate = (mobile) => {
-    return /^\d{10}$/.test(mobile);
-  };
-  const passwordFormate = (password) => {
-    return /^[a-zA-Z0-9]+$/.test(password);
-  };
-
-
-  const validateForm = (data) => {
-    let newError = {};//store the errors here
-
-    // if the edit clicked then if statement block run and not give error but when inserted new record then must enter unique id for it
-    if (edit) {
-      {
-        <div className="mb-3">
-          <label className="form-label">id</label>
-          <input type="number" className="form-control" name='id' onChange={handleInput} value={store?.id} />
-          {errors && <div className='error'>{errors.id}</div>}
-        </div>;
-      }
-    }
-    else if (dataStore.some((item) => item.id === data.id)) {
-      newError.id = "enter unique id";
-    }
-
-    if (!data.id || !idFormate(data.id)) {
-      newError.id = "enter id as number";
-    }
-
-    if (!data.name || !nameFomate(data.name)) {
-      newError.name = "enter name as latter";
-    }
-
-    if (!data.email || !emailFormate(data.email)) {
-      newError.email = "enter correct email address";
-    }
-
-    if (!data.mobile || !mobileFormate(data.mobile)) {
-      newError.mobile = "enter only 10 digit number";
-    }
-
-    if (!data.password || !passwordFormate(data.password)) {
-      newError.password = "enter password as latter or number";
-    }
-
-    setErrors(newError);
-
-    return !Object.keys(newError).length;//if any error then give false || 0 value otherwirse true
-  };
-
-  // console.log(errors);
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-
-    let isValid = validateForm(store);
-    console.log('isValid???', isValid);
-    if (isValid) {
-      console.log("no errors");
-    }
-    else {
-      console.log("your enter data is not correct");
-      // this run if error then can not inser,update data
-      return;
-    }
-
-
-    if (errors) {
+ if(store === validationSchema)
+ {
+console.log("all fill")
+ }
+ else{
+console.log("not fill")
+ }
+    try {
+      await validationSchema.validate(store, { abortEarly: false });
       if (edit) {
         setDataStore((prestore) => prestore.map((item) => item.id === edit ? { ...item, ...store } : item));
 
@@ -130,21 +72,44 @@ function Form(props) {
 
       }
       setStore({ id: "", name: "", email: "", mobile: "", password: "" });
-    }
-    else {
-      ShowAlert("danger", "enter correct data");
+
+    } catch (error) {
+      console.log(error.inner);
+      const newError = {};
+
+      error.inner.map((err) => {
+        newError[err.path] = err.message;
+      });
+      setErrors(newError);
 
     }
   };
+
   // console.log(store);
   // console.log(dataStore);
 
-  const handleInput = (event) => {
+  const handleInput = async (event) => {
     let name = event.target.name;
     let value = event.target.value;
     setStore({ ...store, [name]: value });
-    validateForm({ ...store, [name]: value });
+
+    try {
+      await validationSchema.validate(store, { abortEarly: false });
+
+    } catch (error) {
+      console.log(error.inner);
+      const newError = {};
+
+      error.inner.map((err) => {
+        newError[err.path] = err.message;
+      });
+      setErrors(newError);
+
+    }
+
   };
+
+
 
   const deleteData = (id) => {
     console.log(id);
@@ -163,10 +128,6 @@ function Form(props) {
     setStore(updateid);//add exits data in input box
     setEdit(id);//this id go in edit not updateid
   };
-
-
-
-
 
 
 
@@ -204,8 +165,6 @@ function Form(props) {
         </form>
       </div>
 
-
-
       <div className="container">
         {
           dataStore && (
@@ -242,18 +201,7 @@ function Form(props) {
             </table>
           )}
       </div >
-
-      {/* <DisplayData dataStore={dataStore} deleteData={deleteData} updateData={updateData} /> */}
     </>
   );
 };
-
-// <tr>
-// <td>{store.id}</td>
-// <td>{store.name}</td>
-// <td>{store.email}</td>
-// <td>{store.mobile}</td>
-// <td>{store.password}</td>
-// </tr>
-
-export default Form;
+export default Formyup;
