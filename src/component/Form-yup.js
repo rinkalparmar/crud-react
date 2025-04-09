@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
-import { useFormik } from 'formik';
 
 function Formyup(props) {
   const { ShowAlert } = props;
@@ -31,61 +30,88 @@ function Formyup(props) {
     name: yup.string("name only latter").required("name is required"),
     email: yup.string().email("enter correct email address").required("email is required"),
     mobile: yup.string()
-      .max(10, "Mobile number must be  10 digits")
-      .required("Mobile number is required"),
+      .min(10, "Mobile number must be  10 digits")
+      .max(10, "Mobile number must be  10 digits"),
     password: yup.string().required("password is required"),
   });
 
 
-  // console.log(errors); 
+  console.log(errors);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
- if(store === validationSchema)
- {
-console.log("all fill")
- }
- else{
-console.log("not fill")
- }
+
+    debugger;
     try {
       await validationSchema.validate(store, { abortEarly: false });
-      if (edit) {
-        setDataStore((prestore) => prestore.map((item) => item.id === edit ? { ...item, ...store } : item));
+      setErrors({});//this used when user enter correct data then all errors removes
 
-        // update data in localstorage 
-        localStorage.setItem("data", JSON.stringify(dataStore.map((item) => item.id === edit ? { ...item, ...store } : item)));
+      let checkId = dataStore.some((item) => item.id === store.id);
+      console.log(checkId);//true
+      if (!checkId || edit) {//false
+        console.log("edit", edit);
+        if (edit) {
+          {
+            <div className="mb-3">
+              <label className="form-label">id</label>
+              <input type="number" className="form-control" name='id' onChange={handleInput} value={store?.id} />
+              {errors && <div className='error'>{errors.id}</div>}
+            </div>;
+          }
+        }
+
+        if (edit) {
+          setDataStore((prestore) => prestore.map((item) => item.id === edit ? { ...item, ...store } : item));
+
+          // update data in localstorage 
+          localStorage.setItem("data", JSON.stringify(dataStore.map((item) => item.id === edit ? { ...item, ...store } : item)));
 
 
-        ShowAlert("success", "your data is updated");
-        setEdit(null);
+          ShowAlert("success", "your data is updated");
+          setEdit(null);
+        }
+        else {
+          setDataStore((prestore) => ([...prestore, store]));
+          ShowAlert("success", "your data inserted");
+
+          // store data in localstore 
+          localStorage.setItem("data", JSON.stringify([...dataStore, store]));
+        }
+        setStore({ id: "", name: "", email: "", mobile: "", password: "" });
       }
-      else {
-        // debugger;
-
-        setDataStore((prestore) => ([...prestore, store]));
-        ShowAlert("success", "your data inserted");
-
-        // store data in localstore 
-        localStorage.setItem("data", JSON.stringify([...dataStore, store]));
-
-      }
-      setStore({ id: "", name: "", email: "", mobile: "", password: "" });
-
-    } catch (error) {
+    }
+    catch (error) {
       console.log(error.inner);
-      const newError = {};
+      let newError = {};
+
+      // let checkId = dataStore.some((item) => item.id === store.id);
+      // console.log("true", checkId);//true
+      // if (!checkId) {//false
+      //   newError={ id: "enter uni id" };
+      // }
+
 
       error.inner.map((err) => {
         newError[err.path] = err.message;
       });
-      setErrors(newError);
 
+      // if(dataStore.id)
+      
+      setErrors(newError);
+      console.log("enter unique id")
     }
+    // else {
+      
+    //   console.log("enter uni id", errors);
+    //   setErrors({ id: "enter uni id" });
+    //   // console.log(object)
+    // }
+    // debugger
+    
   };
 
-  // console.log(store);
+  console.log(store);
   // console.log(dataStore);
 
   const handleInput = async (event) => {
@@ -94,11 +120,11 @@ console.log("not fill")
     setStore({ ...store, [name]: value });
 
     try {
-      await validationSchema.validate(store, { abortEarly: false });
-
+      await validationSchema.validate({ ...store, [name]: value }, { abortEarly: false });
+      setErrors({});//this used when user enter correct data then all errors removes from errors state
     } catch (error) {
       console.log(error.inner);
-      const newError = {};
+      let newError = {};
 
       error.inner.map((err) => {
         newError[err.path] = err.message;
@@ -139,6 +165,8 @@ console.log("not fill")
             <label className="form-label">id</label>
             <input type="number" className="form-control" name='id' onChange={handleInput} value={store?.id} />
             {errors && <div className='error'>{errors.id}</div>}
+            {/* {errors.id ? <div className='error'>{errors.id}</div> : <div className='error'>{errors.id}</div>} */}
+
           </div>
           <div className="mb-3">
             <label className="form-label">name</label>

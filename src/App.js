@@ -2,10 +2,11 @@ import { useState } from 'react';
 import './App.css';
 // import Form from './class-component/Form';
 // import Navbar from './class-component/Navbar';
-import Form from './component/Form';
+// import Form from './component/Form';
 import Navbar from './component/Navbar';
 import Alert from './component/Alert';
 // import Formyup from './component/Form-yup';
+import FormYup from './component/FormYup';
 
 function App() {
 
@@ -27,8 +28,9 @@ function App() {
       {/* functional component */}
       <Navbar />
       <Alert alert={alert} />
-      <Form ShowAlert={ShowAlert} />
+      {/* <Form ShowAlert={ShowAlert} /> */}
       {/* <Formyup ShowAlert={ShowAlert}/> */}
+      <FormYup ShowAlert={ShowAlert}/>
 
       {/* class component */}
       {/* <Navbar/>
